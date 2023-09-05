@@ -1,8 +1,6 @@
 FROM ubuntu:latest
 
-COPY week3.sh /app
-
-WORKDIR /app
+COPY week3.sh .
 
 RUN chmod +x week3.sh
 
