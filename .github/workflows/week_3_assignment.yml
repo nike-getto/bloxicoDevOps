@@ -1,15 +1,39 @@
-name: 'Week 3: Scanning and pushing to Docker Hub'
+name: 'Week 3: Image Scanning and Pushing to Docker Hub'
 
 on:
   push:
+    branches:
+      - main
 
 jobs:
-  scan-and-push-image:
+  build-and-scan:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v2
 
-      - name: 
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Build Docker Image
+        run: |
+          docker buildx create --use
+          docker buildx inspect default --bootstrap
+          docker buildx build --platform linux/amd64,linux/arm64 -t nikesevojno/bloxico_sava:week_3 .
+        env:
+          DOCKER_CLI_ARCH: amd64
+
+      - name: Scan Docker Image for Vulnerabilities
+        run: |
+          docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy nikesevojno/bloxico_sava:week_3
+        env:
+          TRIVY_USERNAME: ${{ secrets.DOCKER }}
+          TRIVY_TOKEN: ${{ secrets.DOCKER_PASSWORD }} # You need to set up Docker Hub credentials as secrets in your repository.
+
+      - name: Push Docker Image to Docker Hub
+        if: github.ref == 'refs/heads/main' # Push only on the main branch. Change to 'refs/heads/master' if needed.
+        run: |
+          echo ${{ secrets.DOCKER_PASSWORD }} | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
+          docker push nikesevojno/bloxico_sava:week_3
 
