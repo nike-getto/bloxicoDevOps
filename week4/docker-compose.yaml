@@ -11,7 +11,7 @@ services:
     volumes:
       - wordpress_data:/var/www/html
     networks:
-      - custom_network
+      - week_4_network
 
   mysql:
     image: mysql:latest
@@ -23,7 +23,7 @@ services:
     volumes:
       - mysql_data:/var/lib/mysql
     networks:
-      - custom_network
+      - week_4_network
 
 networks:
   custom_network:
