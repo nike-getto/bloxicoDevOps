@@ -26,7 +26,7 @@ services:
       - week_4_network
 
 networks:
-  custom_network:
+  week_4-network:
     driver: bridge
 
 volumes:
