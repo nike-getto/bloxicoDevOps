@@ -1,4 +1,4 @@
-name: 'Week 3: Image Scanning and Pushing to Docker Hub'
+name: "Week 3: Docker Scan and Push"
 
 on:
   push:
@@ -6,34 +6,27 @@ on:
       - main
 
 jobs:
-  build-and-scan:
+  scan-and-push:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      - name: Checkout Repository
         uses: actions/checkout@v2
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
 
-      - name: Build Docker Image
+      - name: Build and Tag Docker Image
         run: |
-          docker buildx create --use
-          docker buildx inspect default --bootstrap
-          docker buildx build --platform linux/amd64,linux/arm64 -t nikesevojno/bloxico_sava:week_3 .
-        env:
-          DOCKER_CLI_ARCH: amd64
+          docker build -t nikesevojno/bloxicosava:latest .
+          docker tag nikesevojno/bloxicosava:latest nikesevojno/bloxicosava:commit-${{ github.sha }}
 
-      - name: Scan Docker Image for Vulnerabilities
+      - name: Log in to Docker Hub
         run: |
-          docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy nikesevojno/bloxico_sava:week_3
-        env:
-          TRIVY_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-          TRIVY_TOKEN: ${{ secrets.DOCKER_PASSWORD }} # You need to set up Docker Hub credentials as secrets in your repository.
+          echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
 
       - name: Push Docker Image to Docker Hub
-        if: github.ref == 'refs/heads/main' # Push only on the main branch. Change to 'refs/heads/master' if needed.
         run: |
-          echo ${{ secrets.DOCKER_PASSWORD }} | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
-          docker push nikesevojno/bloxico_sava:week_3
+          docker push your-docker-hub-username/your-image-name:latest
+          docker push your-docker-hub-username/your-image-name:commit-${{ github.sha }}
 
