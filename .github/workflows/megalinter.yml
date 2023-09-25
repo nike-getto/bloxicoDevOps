@@ -1,0 +1,17 @@
+name: MegaLinter
+on:
+  push:
+    branches:
+      - main # or your main development branch
+
+jobs:
+  MegaLinter:
+    name: Run MegaLinter
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Run MegaLinter
+        uses: Mega-Linter/mega-linter@v4
+        with:
+          files: '**/*'
